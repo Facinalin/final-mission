@@ -1,10 +1,31 @@
----
-title: Boostrap Index
-layout: ./app/layout.ejs
-engine: ejs
-current: index
----
-<section class="wrap" id="bedAdvantage">
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Boostrap Index</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="./assets/style/all.css">
+  </head>
+
+  <body>
+    <nav class="topBar">
+      <div class="wrap">
+          <h1><a href="#" class="logo">WOWOROOM</a></h1>
+          <span class="material-icons menuToggle">
+              menu
+          </span>
+          <ul class="topBar-menu">
+              <li><a href="#bedAdvantage">床墊優勢</a></li>
+              <li><a href="#recommendation">好評推薦</a></li>
+              <li><a href="#transport">運送方式</a></li>
+              <li><a href="#orderInfo">立即預訂</a></li>
+          </ul>
+      </div>
+  </nav>
+    <section class="wrap" id="bedAdvantage">
   <div class="banner">
       <h2 class="banner-text">窩窩家居<br>跟您一起品味生活</h2>
   </div>
@@ -339,3 +360,12 @@ current: index
       <input type="submit" value="送出預訂資料" class="orderInfo-btn">
   </form>
 </section>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+    <script src="./assets/js/vendors.js"></script>
+    <script src="./assets/js/all.js"></script>
+  </body>
+
+</html>
