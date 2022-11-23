@@ -68,7 +68,7 @@ const cardItemTitle = document.querySelector('.cardItem-title');
 const perItemCart = document.querySelector('.perItemCart');
 const jsTotal = document.querySelector('.js-total');
 const orderInfoBtn = document.querySelector('.orderInfo-btn');
-
+const token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1";
 
 //axios.get資料
 
@@ -178,14 +178,12 @@ function getCart(){
 function rendercData(data,domElement){
     let str ="";
     data.forEach(item =>{
-    if(data.length==0){
-        return str;     
+    if(data.length>0){
+         str += cartHTML(item);  
  }
-    else{
-        str += cartHTML(item);
-    }
+})   
     domElement.innerHTML = str;
-    })   
+
     console.log('渲染購物車成功');
 }
 
@@ -280,19 +278,30 @@ orderInfoBtn.addEventListener('click', (e) =>{
         }
       }).then(function(response){
         alert('送出訂單成功！')
+        getCart();
         customerName = "";
         customerPhone = "";
         customerEmail = "";
         customerAddress = "";
-        tradeWay= "";})
-
-      axios.delete(`${api_Url}/carts/`)
-      .then(function(response){
-          getCart();
-      })
-
+        tradeWay= "";
+    })
 }) 
 
+//get購物車carts
+
+function getOrder(){
+    axios.get(`${api_Url}/orders`,{
+        headers:{
+           "Authorization": token
+        }
+    })
+  .then(function(response){
+    console.log(response.data);
+  })
+  .catch(function(err){
+    console.log(err);
+  })
+}
 /*async function clearAfterOrder(){
     await  axios.post(`${api_Url}/orders`,{
         "data": {
