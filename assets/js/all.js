@@ -73,7 +73,8 @@ var shoppingCartTable = document.querySelector('.shoppingCart-table');
 var cardItemTitle = document.querySelector('.cardItem-title');
 var perItemCart = document.querySelector('.perItemCart');
 var jsTotal = document.querySelector('.js-total');
-var orderInfoBtn = document.querySelector('.orderInfo-btn'); //axios.get資料
+var orderInfoBtn = document.querySelector('.orderInfo-btn');
+var token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1"; //axios.get資料
 
 var wData = [];
 init(); //get一般product
@@ -158,14 +159,11 @@ function getCart() {
 function rendercData(data, domElement) {
   var str = "";
   data.forEach(function (item) {
-    if (data.length == 0) {
-      return str;
-    } else {
+    if (data.length > 0) {
       str += cartHTML(item);
     }
-
-    domElement.innerHTML = str;
   });
+  domElement.innerHTML = str;
   console.log('渲染購物車成功');
 } //『加入購物車』按鈕的監聽//技巧：監聽整個顯示商品的ul區域，可以限制監聽行為不會莫名其妙跑到其他區塊去，一個一個綁效能很差。缺點二：萬一寫到後面有一樣的li的class名稱，監聽會套用在你沒預期的地方。
 
@@ -256,16 +254,26 @@ orderInfoBtn.addEventListener('click', function (e) {
     }
   }).then(function (response) {
     alert('送出訂單成功！');
+    getCart();
     customerName = "";
     customerPhone = "";
     customerEmail = "";
     customerAddress = "";
     tradeWay = "";
   });
-  axios["delete"]("".concat(api_Url, "/carts/")).then(function (response) {
-    getCart();
+}); //get購物車carts
+
+function getOrder() {
+  axios.get("".concat(api_Url, "/orders"), {
+    headers: {
+      "Authorization": token
+    }
+  }).then(function (response) {
+    console.log(response.data);
+  })["catch"](function (err) {
+    console.log(err);
   });
-});
+}
 /*async function clearAfterOrder(){
     await  axios.post(`${api_Url}/orders`,{
         "data": {
