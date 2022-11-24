@@ -63,6 +63,9 @@ function closeMenu() {
 const productWrap = document.querySelector('.productWrap');
 const productSelect = document.querySelector('.productSelect');
 const api_Url = "https://livejs-api.hexschool.io/api/livejs/v1/customer/2022nov";
+const api_Urlm = "https://livejs-api.hexschool.io/api/livejs/v1/admin/2022nov";
+const api_Path = '2022nov';
+const api_Src = "https://livejs-api.hexschool.io/api/livejs/v1"
 const shoppingCartTable = document.querySelector('.shoppingCart-table');
 const cardItemTitle = document.querySelector('.cardItem-title');
 const perItemCart = document.querySelector('.perItemCart');
@@ -265,6 +268,7 @@ orderInfoBtn.addEventListener('click', (e) =>{
     let tradeWay = document.querySelector('#tradeWay').value;
     if(customerName==""||customerPhone==""|| customerAddress==""|| customerEmail==""){
         alert("資料不全，請檢查再送出！");
+        return;
     }
     axios.post(`${api_Url}/orders`,{
         "data": {
@@ -278,6 +282,8 @@ orderInfoBtn.addEventListener('click', (e) =>{
         }
       }).then(function(response){
         alert('送出訂單成功！')
+        console.log(response.data);
+        getOrder();
         getCart();
         customerName = "";
         customerPhone = "";
@@ -289,8 +295,9 @@ orderInfoBtn.addEventListener('click', (e) =>{
 
 //get購物車carts
 
+
 function getOrder(){
-    axios.get(`${api_Url}/orders`,{
+    axios.get(`${api_Urlm}/orders`,{
         headers:{
            "Authorization": token
         }
@@ -302,6 +309,10 @@ function getOrder(){
     console.log(err);
   })
 }
+
+
+
+
 /*async function clearAfterOrder(){
     await  axios.post(`${api_Url}/orders`,{
         "data": {
