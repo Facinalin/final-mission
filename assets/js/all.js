@@ -1,5 +1,128 @@
 "use strict";
 
+var api_Path = '2022nov';
+var api_Src = "https://livejs-api.hexschool.io/api/livejs/v1";
+var token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1";
+var js0rderList = document.querySelector('.js-orderList');
+var orderData = [];
+getOrderList(); // axios get訂單列表
+
+function getOrderList() {
+  axios.get("".concat(api_Src, "/admin/").concat(api_Path, "/orders"), {
+    headers: {
+      "Authorization": token
+    }
+  }).then(function (response) {
+    orderData = response.data.orders;
+    console.log(orderData);
+    renderOrderList(orderData);
+  })["catch"](function (err) {
+    console.log(err);
+  });
+}
+
+var chart = c3.generate({
+  bindto: '#chart',
+  // HTML 元素綁定
+  data: {
+    type: "pie",
+    columns: [['Louvre 雙人床架', 1], ['Antony 雙人床架', 2], ['Anty 雙人床架', 3], ['其他', 4]],
+    colors: {
+      "Louvre 雙人床架": "#DACBFF",
+      "Antony 雙人床架": "#9D7FEA",
+      "Anty 雙人床架": "#5434A7",
+      "其他": "#301E5F"
+    }
+  }
+}); // 渲染訂單order list
+
+function renderOrderList(data) {
+  var str = ""; //組產品字串
+  //判斷訂單狀態
+  //組訂單字串
+
+  data.forEach(function (el) {
+    var user = el.user,
+        id = el.id,
+        createdAt = el.createdAt,
+        paid = el.paid,
+        products = el.products;
+    var productStr = "";
+    products.forEach(function (item) {
+      productStr += "<p>".concat(item.title, "x").concat(item.quantity, "</p>");
+    });
+    var orderStatus = "";
+
+    if (paid == true) {
+      orderStatus = "已處理";
+    } else {
+      orderStatus = "未付款";
+    }
+
+    str += "<tr>\n        <td width=\"10%\">".concat(id, "</td>\n        <td width=\"10%\">\n          <p>").concat(user.name, "</p>\n          <p>").concat(user.tel, "</p>\n        </td>\n        <td width=\"10%\">").concat(user.address, "</td>\n        <td width=\"15%\">").concat(user.email, "</td>\n        <td width=\"25%\">\n        ").concat(productStr, "\n        </td>\n        <td width=\"10%\">").concat(createdAt, "</td>\n        <td width=\"10%\" class=\"orderStatus\">\n          <a href=\"#\" data-id=\"").concat(id, "\" data-status=\"").concat(paid, "\" class=\"orderStatus\">").concat(orderStatus, "</a>\n        </td>\n        <td width=\"10%\">\n          <input type=\"button\" class=\"delSingleOrder-Btn\" data-id=\"").concat(id, "\" value=\"\u522A\u9664\">\n        </td>\n    </tr>");
+    js0rderList.innerHTML = str; //放在forEach裡才渲染得出來
+  });
+  js0rderList.addEventListener('click', function (e) {
+    e.preventDefault();
+    var targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
+
+    var itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
+
+    var paidStatus = e.target.getAttribute('data-status');
+
+    if (targetClass == "orderStatus") {
+      console.log(itemId);
+      console.log(paidStatus);
+      changeStatus(paidStatus, itemId);
+      return;
+    } else if (targetClass == "delSingleOrder-Btn") {
+      deleteOrder(itemId);
+    }
+  });
+} //寫個別『刪除訂單資料』的函式axios delete
+
+
+function deleteOrder(id) {
+  axios["delete"]("".concat(api_Src, "/admin/").concat(api_Path, "/orders/").concat(id), {
+    headers: {
+      "Authorization": token
+    }
+  }).then(function (response) {
+    getOrderList();
+  });
+} //寫個別『更改訂單狀態』的函式axios put -注意axios規定參數格式
+
+
+function changeStatus(status, id) {
+  console.log(status);
+  var updateStatus;
+
+  if (status == "true") {
+    updateStatus = false;
+    console.log("\u73FE\u5728\u6539\u6210".concat(updateStatus));
+  } else {
+    updateStatus = true;
+    console.log("\u73FE\u5728\u6539\u6210".concat(updateStatus));
+  }
+
+  axios.put("".concat(api_Src, "/admin/").concat(api_Path, "/orders"), {
+    "data": {
+      "id": "".concat(id),
+      "paid": "".concat(updateStatus)
+    }
+  }, {
+    headers: {
+      "Authorization": token
+    }
+  }).then(function (response) {
+    alert('修改訂單狀態成功！');
+    getOrderList();
+  })["catch"](function (error) {
+    console.log(error);
+  });
+}
+"use strict";
+
 // ~作業預設
 document.addEventListener('DOMContentLoaded', function () {
   var ele = document.querySelector('.recommendation-wall');
@@ -69,6 +192,9 @@ function closeMenu() {
 var productWrap = document.querySelector('.productWrap');
 var productSelect = document.querySelector('.productSelect');
 var api_Url = "https://livejs-api.hexschool.io/api/livejs/v1/customer/2022nov";
+var api_Urlm = "https://livejs-api.hexschool.io/api/livejs/v1/admin/2022nov";
+var api_Path = '2022nov';
+var api_Src = "https://livejs-api.hexschool.io/api/livejs/v1";
 var shoppingCartTable = document.querySelector('.shoppingCart-table');
 var cardItemTitle = document.querySelector('.cardItem-title');
 var perItemCart = document.querySelector('.perItemCart');
@@ -240,6 +366,7 @@ orderInfoBtn.addEventListener('click', function (e) {
 
   if (customerName == "" || customerPhone == "" || customerAddress == "" || customerEmail == "") {
     alert("資料不全，請檢查再送出！");
+    return;
   }
 
   axios.post("".concat(api_Url, "/orders"), {
@@ -254,6 +381,8 @@ orderInfoBtn.addEventListener('click', function (e) {
     }
   }).then(function (response) {
     alert('送出訂單成功！');
+    console.log(response.data);
+    getOrder();
     getCart();
     customerName = "";
     customerPhone = "";
@@ -264,7 +393,7 @@ orderInfoBtn.addEventListener('click', function (e) {
 }); //get購物車carts
 
 function getOrder() {
-  axios.get("".concat(api_Url, "/orders"), {
+  axios.get("".concat(api_Urlm, "/orders"), {
     headers: {
       "Authorization": token
     }
