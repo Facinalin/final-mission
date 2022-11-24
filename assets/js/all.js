@@ -37,10 +37,7 @@ var chart = c3.generate({
 }); // 渲染訂單order list
 
 function renderOrderList(data) {
-  var str = ""; //組產品字串
-  //判斷訂單狀態
-  //組訂單字串
-
+  var str = "";
   data.forEach(function (el) {
     var user = el.user,
         id = el.id,
@@ -107,15 +104,15 @@ function changeStatus(status, id) {
 
   axios.put("".concat(api_Src, "/admin/").concat(api_Path, "/orders"), {
     "data": {
-      "id": "".concat(id),
-      "paid": "".concat(updateStatus)
+      "id": id,
+      "paid": updateStatus
     }
   }, {
     headers: {
       "Authorization": token
     }
   }).then(function (response) {
-    alert('修改訂單狀態成功！');
+    console.log('修改訂單狀態成功！');
     getOrderList();
   })["catch"](function (error) {
     console.log(error);
