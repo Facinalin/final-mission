@@ -47,9 +47,6 @@ let chart = c3.generate({
 // 渲染訂單order list
 function renderOrderList(data){
     let str ="";
-    //組產品字串
-    //判斷訂單狀態
-    //組訂單字串
     data.forEach(el =>{
         const {user, id, createdAt, paid, products} = el;
         let productStr ="";
@@ -128,8 +125,8 @@ function changeStatus(status,id){
     }
     axios.put(`${api_Src}/admin/${api_Path}/orders`,{
         "data": {
-          "id": `${id}`,
-          "paid": `${updateStatus}`
+          "id": id,
+          "paid": updateStatus
         }
       },{
         headers:{
@@ -137,7 +134,7 @@ function changeStatus(status,id){
         }
     })
       .then(function(response){
-        alert('修改訂單狀態成功！');
+        console.log('修改訂單狀態成功！');
         getOrderList();
       })
       .catch(function(error){
