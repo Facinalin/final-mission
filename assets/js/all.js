@@ -5,7 +5,7 @@ var api_Src = "https://livejs-api.hexschool.io/api/livejs/v1";
 var token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1";
 var js0rderList = document.querySelector('.js-orderList');
 var orderData = [];
-getOrderList(); // axios get訂單列表
+getOrderList(); // axios get訂單列表+順便執行c3
 
 function getOrderList() {
   axios.get("".concat(api_Src, "/admin/").concat(api_Path, "/orders"), {
@@ -14,25 +14,79 @@ function getOrderList() {
     }
   }).then(function (response) {
     orderData = response.data.orders;
-    console.log(orderData);
     renderOrderList(orderData);
+    renderc3();
   })["catch"](function (err) {
     console.log(err);
   });
+} //渲染c3圖表
+
+
+function renderc3() {
+  var total = {};
+  orderData.forEach(function (item) {
+    var products = item.products;
+    products.forEach(function (el) {
+      if (total[el.category] == undefined) {
+        total[el.category] = el.price * el.quantity;
+      } else {
+        total[el.category] += el.price * el.quantity;
+      }
+    });
+  });
+  var categoryArr = Object.keys(total);
+  var newData = [];
+  categoryArr.forEach(function (el) {
+    var arr = [];
+    arr.push(el);
+    arr.push(total[el]);
+    newData.push(arr);
+  });
+  newData.sort(function (a, b) {
+    return b[1] - a[1];
+  });
+  var otherTotal = 0;
+
+  if (newData.length > 3) {
+    newData.forEach(function (el, i) {
+      if (i > 2) {
+        otherTotal += el[1];
+      }
+    });
+  }
+
+  newData.splice(3, newData.length - 1);
+  newData.push(['其他', otherTotal]);
+  var chart = c3.generate({
+    bindto: '#chart',
+    data: {
+      type: "pie",
+      columns: newData,
+      colors: {
+        "窗簾": "#DACBFF",
+        "床架": "#9D7FEA",
+        "收納": "#5434A7",
+        "其他": "#301E5F"
+      }
+    }
+  });
 }
 
-var chart = c3.generate({
-  bindto: '#chart',
-  // HTML 元素綁定
-  data: {
-    type: "pie",
-    columns: [['Louvre 雙人床架', 1], ['Antony 雙人床架', 2], ['Anty 雙人床架', 3], ['其他', 4]],
-    colors: {
-      "Louvre 雙人床架": "#DACBFF",
-      "Antony 雙人床架": "#9D7FEA",
-      "Anty 雙人床架": "#5434A7",
-      "其他": "#301E5F"
-    }
+js0rderList.addEventListener('click', function (e) {
+  e.preventDefault();
+  var targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
+
+  var itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
+
+  var paidStatus = e.target.getAttribute('data-status');
+
+  if (targetClass == "orderStatus") {
+    console.log(itemId);
+    console.log(paidStatus);
+    changeStatus(paidStatus, itemId);
+    return;
+  } else if (targetClass == "delSingleOrder-Btn") {
+    deleteOrder(itemId);
   }
 }); // 渲染訂單order list
 
@@ -43,7 +97,10 @@ function renderOrderList(data) {
         id = el.id,
         createdAt = el.createdAt,
         paid = el.paid,
-        products = el.products;
+        products = el.products; //組成時間
+
+    var timeStamp = new Date(createdAt * 1000);
+    var time = "".concat(timeStamp.getFullYear(), "/").concat(timeStamp.getMonth() + 1, "/").concat(timeStamp.getDate());
     var productStr = "";
     products.forEach(function (item) {
       productStr += "<p>".concat(item.title, "x").concat(item.quantity, "</p>");
@@ -56,25 +113,8 @@ function renderOrderList(data) {
       orderStatus = "未付款";
     }
 
-    str += "<tr>\n        <td width=\"10%\">".concat(id, "</td>\n        <td width=\"10%\">\n          <p>").concat(user.name, "</p>\n          <p>").concat(user.tel, "</p>\n        </td>\n        <td width=\"10%\">").concat(user.address, "</td>\n        <td width=\"15%\">").concat(user.email, "</td>\n        <td width=\"25%\">\n        ").concat(productStr, "\n        </td>\n        <td width=\"10%\">").concat(createdAt, "</td>\n        <td width=\"10%\" class=\"orderStatus\">\n          <a href=\"#\" data-id=\"").concat(id, "\" data-status=\"").concat(paid, "\" class=\"orderStatus\">").concat(orderStatus, "</a>\n        </td>\n        <td width=\"10%\">\n          <input type=\"button\" class=\"delSingleOrder-Btn\" data-id=\"").concat(id, "\" value=\"\u522A\u9664\">\n        </td>\n    </tr>");
+    str += "<tr>\n        <td width=\"10%\">".concat(id, "</td>\n        <td width=\"10%\">\n          <p>").concat(user.name, "</p>\n          <p>").concat(user.tel, "</p>\n        </td>\n        <td width=\"10%\">").concat(user.address, "</td>\n        <td width=\"15%\">").concat(user.email, "</td>\n        <td width=\"25%\">\n        ").concat(productStr, "\n        </td>\n        <td width=\"10%\">").concat(time, "</td>\n        <td width=\"10%\" class=\"orderStatus\">\n          <a href=\"#\" data-id=\"").concat(id, "\" data-status=\"").concat(paid, "\" class=\"orderStatus\">").concat(orderStatus, "</a>\n        </td>\n        <td width=\"10%\">\n          <input type=\"button\" class=\"delSingleOrder-Btn\" data-id=\"").concat(id, "\" value=\"\u522A\u9664\">\n        </td>\n    </tr>");
     js0rderList.innerHTML = str; //放在forEach裡才渲染得出來
-  });
-  js0rderList.addEventListener('click', function (e) {
-    e.preventDefault();
-    var targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
-
-    var itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
-
-    var paidStatus = e.target.getAttribute('data-status');
-
-    if (targetClass == "orderStatus") {
-      console.log(itemId);
-      console.log(paidStatus);
-      changeStatus(paidStatus, itemId);
-      return;
-    } else if (targetClass == "delSingleOrder-Btn") {
-      deleteOrder(itemId);
-    }
   });
 } //寫個別『刪除訂單資料』的函式axios delete
 
@@ -112,11 +152,19 @@ function changeStatus(status, id) {
       "Authorization": token
     }
   }).then(function (response) {
-    console.log('修改訂單狀態成功！');
     getOrderList();
+    console.log('修改訂單狀態成功！');
   })["catch"](function (error) {
     console.log(error);
   });
+} //utility js
+//千分位
+
+
+function toThousands(x) {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
 }
 "use strict";
 
@@ -251,7 +299,7 @@ function cartHTML(item) {
   var quantity = item.quantity,
       id = item.id;
   subtotal = price * quantity;
-  return "<tr class=\"perItem\"><td>\n    <div class=\"cardItem-title\">\n        <img src=\"".concat(images, "\" alt=\"\">\n        <p>").concat(title, "</p>\n    </div>\n</td>\n<td>NT$").concat(price, "</td>\n<td>").concat(quantity, "</td>\n<td class=\"subtotal\">NT$").concat(subtotal, "</td>\n<td class=\"discardBtn\">\n<a href=\"#\" class=\"material-icons\" data-id=\"").concat(id, "\"> \n    clear\n</a>\n</td></tr>");
+  return "<tr class=\"perItem\"><td>\n    <div class=\"cardItem-title\">\n        <img src=\"".concat(images, "\" alt=\"\">\n        <p>").concat(title, "</p>\n    </div>\n</td>\n<td>NT$").concat(toThousands(price), "</td>\n<td>").concat(quantity, "</td>\n<td class=\"subtotal\">NT$").concat(toThousands(subtotal), "</td>\n<td class=\"discardBtn\">\n<a href=\"#\" class=\"material-icons\" data-id=\"").concat(id, "\"> \n    clear\n</a>\n</td></tr>");
 } //注意取用cart的id還是product的id
 
 
@@ -261,7 +309,7 @@ function productHTML(item) {
       title = item.title,
       origin_price = item.origin_price,
       price = item.price;
-  return " <li class=\"productCard\">\n    <h4 class=\"productType\">\u65B0\u54C1</h4>\n    <img src=\"".concat(images, "\" alt=\"\">\n    <a href=\"#\" class=\"addCardBtn\" data-id=\"").concat(id, "\">\u52A0\u5165\u8CFC\u7269\u8ECA</a>\n    <h3>").concat(title, "</h3>\n    <del class=\"originPrice\">NT$").concat(origin_price, "</del>\n    <p class=\"nowPrice\">NT$").concat(price, "</p>\n    </li> ");
+  return " <li class=\"productCard\">\n    <h4 class=\"productType\">\u65B0\u54C1</h4>\n    <img src=\"".concat(images, "\" alt=\"\">\n    <a href=\"#\" class=\"addCardBtn\" data-id=\"").concat(id, "\">\u52A0\u5165\u8CFC\u7269\u8ECA</a>\n    <h3>").concat(title, "</h3>\n    <del class=\"originPrice\">NT$").concat(toThousands(origin_price), "</del>\n    <p class=\"nowPrice\">NT$").concat(toThousands(price), "</p>\n    </li> ");
 } //get購物車carts
 
 
@@ -272,7 +320,7 @@ function getCart() {
     cData = response.data.carts;
     var finalTot = response.data.finalTotal;
     rendercData(cData, perItemCart);
-    jsTotal.textContent = finalTot;
+    jsTotal.textContent = toThousands(finalTot);
   })["catch"](function (err) {
     console.log(err);
   });
@@ -399,7 +447,70 @@ function getOrder() {
   })["catch"](function (err) {
     console.log(err);
   });
-}
+} //validate js
+
+
+var inputs = document.querySelectorAll('input[name],select[data=payment]');
+var orderInfoForm = document.querySelector('.orderInfo-form');
+orderInfoBtn.addEventListener('click', function (e) {
+  //validate js 套件的規則
+  var constraints = {
+    "姓名": {
+      presence: {
+        message: "必填欄位"
+      }
+    },
+    "手機號碼": {
+      presence: {
+        message: "是必填的欄位"
+      },
+      format: {
+        pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
+        message: "開頭須為09"
+      },
+      length: {
+        is: 10,
+        message: "長度須為10碼"
+      }
+    },
+    "信箱": {
+      presence: {
+        message: "是必填的欄位"
+      },
+      format: {
+        pattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+        message: "格式輸入錯誤，需有@ 、.等符號"
+      }
+    },
+    "寄送地址": {
+      presence: {
+        message: "必填欄位"
+      }
+    }
+  };
+  inputs.forEach(function (el) {
+    el.addEventListener('blur', function () {
+      el.nextElementSibling.textContent = ''; //這邊的nextElementSibling是警示文字的元素
+
+      var errors = validate(orderInfoForm, constraints) || '';
+      console.log(errors);
+      console.log("here");
+      Object.keys(errors).forEach(function (el) {
+        document.querySelector("[data-message=\"".concat(el, "\"]")).textContent = errors[el];
+      });
+    });
+  });
+  var errors = validate(orderInfoForm, constraints);
+
+  if (errors) {
+    console.log(errors);
+  } else {
+    alert("表單成功送出！");
+    form.reset();
+  }
+});
+/**/
+
 /*async function clearAfterOrder(){
     await  axios.post(`${api_Url}/orders`,{
         "data": {
