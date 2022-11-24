@@ -8,7 +8,7 @@ let orderData = [];
 
 getOrderList();
 
-// axios get訂單列表
+// axios get訂單列表+順便執行c3
 function getOrderList(){
     axios.get(`${api_Src}/admin/${api_Path}/orders`,{
         headers:{
@@ -17,38 +17,91 @@ function getOrderList(){
     })
   .then(function(response){
     orderData = response.data.orders;
-    console.log(orderData);
     renderOrderList(orderData);
+    renderc3();
   })
   .catch(function(err){
     console.log(err);
   })
 }
 
-let chart = c3.generate({
-    bindto: '#chart', // HTML 元素綁定
-    data: {
-        type: "pie",
-        columns: [
-        ['Louvre 雙人床架', 1],
-        ['Antony 雙人床架', 2],
-        ['Anty 雙人床架', 3],
-        ['其他', 4],
-        ],
-        colors:{
-            "Louvre 雙人床架":"#DACBFF",
-            "Antony 雙人床架":"#9D7FEA",
-            "Anty 雙人床架": "#5434A7",
-            "其他": "#301E5F",
+
+//渲染c3圖表
+function renderc3(){
+    let total = {};
+    orderData.forEach(item =>{
+    const {products} = item;
+    products.forEach(el =>{
+    if(total[el.category]==undefined){
+     total[el.category]=el.price*el.quantity;  
+    }else{
+     total[el.category]+=el.price*el.quantity;  
+    }
+    })
+    })
+    let categoryArr = Object.keys(total);
+    let newData = [];
+    categoryArr.forEach(el =>{
+     let arr = [];
+     arr.push(el);
+     arr.push(total[el]);
+     newData.push(arr);
+    })
+    newData.sort(function(a,b){
+        return b[1]-a[1];
+    })
+    let otherTotal = 0;
+    if(newData.length > 3){   
+      newData.forEach((el,i) =>{
+        if(i>2){
+            otherTotal+=el[1];
         }
-    },
-});
+      })
+    }
+    newData.splice(3,newData.length-1)
+    newData.push(['其他',otherTotal])
+
+
+    let chart = c3.generate({
+        bindto: '#chart', 
+        data: {
+            type: "pie",
+            columns: newData,
+            colors:{
+                "窗簾":"#DACBFF",
+                "床架":"#9D7FEA",
+                "收納": "#5434A7",
+                "其他": "#301E5F",
+            }
+        },
+    });
+}
+
+ 
+js0rderList.addEventListener('click',(e) =>{
+    e.preventDefault();
+    const targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
+    const itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
+    const paidStatus = e.target.getAttribute('data-status');
+    if(targetClass =="orderStatus"){
+        console.log(itemId);
+        console.log(paidStatus);
+        changeStatus(paidStatus,itemId);
+        return;
+    }else if(targetClass =="delSingleOrder-Btn"){
+     deleteOrder(itemId);
+    }
+})
+
 
 // 渲染訂單order list
 function renderOrderList(data){
     let str ="";
     data.forEach(el =>{
         const {user, id, createdAt, paid, products} = el;
+        //組成時間
+        const timeStamp = new Date(createdAt*1000);
+        const time = `${timeStamp.getFullYear()}/${timeStamp.getMonth() + 1}/${timeStamp.getDate()}`;
         let productStr ="";
         products.forEach(item =>{
         productStr +=`<p>${item.title}x${item.quantity}</p>`;
@@ -70,7 +123,7 @@ function renderOrderList(data){
         <td width="25%">
         ${productStr}
         </td>
-        <td width="10%">${createdAt}</td>
+        <td width="10%">${time}</td>
         <td width="10%" class="orderStatus">
           <a href="#" data-id="${id}" data-status="${paid}" class="orderStatus">${orderStatus}</a>
         </td>
@@ -81,21 +134,7 @@ function renderOrderList(data){
   
     js0rderList.innerHTML = str; //放在forEach裡才渲染得出來
     }) 
-    
-    js0rderList.addEventListener('click',(e) =>{
-        e.preventDefault();
-        const targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
-        const itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
-        const paidStatus = e.target.getAttribute('data-status');
-        if(targetClass =="orderStatus"){
-            console.log(itemId);
-            console.log(paidStatus);
-            changeStatus(paidStatus,itemId);
-            return;
-        }else if(targetClass =="delSingleOrder-Btn"){
-         deleteOrder(itemId);
-        }
-    })
+   
 }
 
 //寫個別『刪除訂單資料』的函式axios delete
@@ -134,13 +173,23 @@ function changeStatus(status,id){
         }
     })
       .then(function(response){
-        console.log('修改訂單狀態成功！');
         getOrderList();
+        console.log('修改訂單狀態成功！');
       })
       .catch(function(error){
         console.log(error);
       })
 }
+
+//utility js
+//千分位
+ 
+function toThousands(x) {
+     let parts = x.toString().split("."); 
+     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); 
+     return parts.join("."); 
+}
+
 
 
 

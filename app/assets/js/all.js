@@ -65,7 +65,7 @@ const productSelect = document.querySelector('.productSelect');
 const api_Url = "https://livejs-api.hexschool.io/api/livejs/v1/customer/2022nov";
 const api_Urlm = "https://livejs-api.hexschool.io/api/livejs/v1/admin/2022nov";
 const api_Path = '2022nov';
-const api_Src = "https://livejs-api.hexschool.io/api/livejs/v1"
+const api_Src = "https://livejs-api.hexschool.io/api/livejs/v1";
 const shoppingCartTable = document.querySelector('.shoppingCart-table');
 const cardItemTitle = document.querySelector('.cardItem-title');
 const perItemCart = document.querySelector('.perItemCart');
@@ -137,9 +137,9 @@ function cartHTML(item){
         <p>${title}</p>
     </div>
 </td>
-<td>NT$${price}</td>
+<td>NT$${toThousands(price)}</td>
 <td>${quantity}</td>
-<td class="subtotal">NT$${subtotal}</td>
+<td class="subtotal">NT$${toThousands(subtotal)}</td>
 <td class="discardBtn">
 <a href="#" class="material-icons" data-id="${id}"> 
     clear
@@ -154,8 +154,8 @@ function productHTML(item){
     <img src="${images}" alt="">
     <a href="#" class="addCardBtn" data-id="${id}">加入購物車</a>
     <h3>${title}</h3>
-    <del class="originPrice">NT$${origin_price}</del>
-    <p class="nowPrice">NT$${price}</p>
+    <del class="originPrice">NT$${toThousands(origin_price)}</del>
+    <p class="nowPrice">NT$${toThousands(price)}</p>
     </li> `
 }
 
@@ -169,7 +169,7 @@ function getCart(){
     cData = response.data.carts;
     let finalTot = response.data.finalTotal;
     rendercData(cData,perItemCart)
-    jsTotal.textContent = finalTot;
+    jsTotal.textContent = toThousands(finalTot);
   })
   .catch(function(err){
     console.log(err);
@@ -309,10 +309,71 @@ function getOrder(){
     console.log(err);
   })
 }
+//validate js
+
+const inputs = document.querySelectorAll('input[name],select[data=payment]')
+const orderInfoForm = document.querySelector('.orderInfo-form')
+
+orderInfoBtn.addEventListener('click', e =>{
+    //validate js 套件的規則
+    const constraints = {
+        "姓名": {
+            presence: {
+                message: "必填欄位"
+            }
+        },
+        "手機號碼": {
+            presence: {
+                message: "是必填的欄位"
+            },
+            format: {
+                pattern: /^09\d{2}-?\d{3}-?\d{3}$/,
+                message: "開頭須為09"
+            },
+            length: {
+                is: 10,
+                message: "長度須為10碼"
+            }
+        },
+        "信箱": {
+            presence: {
+                message: "是必填的欄位"
+            },
+            format: {
+                pattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+                message: "格式輸入錯誤，需有@ 、.等符號"
+            },
+        },
+        "寄送地址": {
+            presence: {
+                message: "必填欄位"
+            }
+        }
+    };
+    inputs.forEach(el =>{
+        el.addEventListener('blur', function(){
+            el.nextElementSibling.textContent = ''; //這邊的nextElementSibling是警示文字的元素
+            let errors = validate(orderInfoForm, constraints) || '';
+            console.log(errors);
+            console.log("here");
+            Object.keys(errors).forEach(function(el){
+                document.querySelector(`[data-message="${el}"]`).textContent = errors[el];
+                })
+        })
+    })
+    let errors = validate(orderInfoForm, constraints);
+    if(errors){
+        console.log(errors);
+
+    }else{
+        alert("表單成功送出！");
+        form.reset();
+    }
+
+})
 
 
-
-
+/**/
 /*async function clearAfterOrder(){
     await  axios.post(`${api_Url}/orders`,{
         "data": {
