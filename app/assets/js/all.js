@@ -77,6 +77,9 @@ const token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1";
 
 let wData = [];
 
+axiosGet();
+    getCart();
+    productSelect.value = "全部";
 init();
 
 //get一般product
@@ -85,9 +88,8 @@ function axiosGet(){
   .then(function(response){
     wData = response.data.products;
     console.log(wData);
-
-    renderData(wData,productWrap);
-   
+    console.log("成功");
+    renderData(wData,productWrap);  
 })
   .catch(function(err){
     console.log(err);

@@ -78,20 +78,7 @@ function renderc3(){
 }
 
  
-js0rderList.addEventListener('click',(e) =>{
-    e.preventDefault();
-    const targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
-    const itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
-    const paidStatus = e.target.getAttribute('data-status');
-    if(targetClass =="orderStatus"){
-        console.log(itemId);
-        console.log(paidStatus);
-        changeStatus(paidStatus,itemId);
-        return;
-    }else if(targetClass =="delSingleOrder-Btn"){
-     deleteOrder(itemId);
-    }
-})
+
 
 
 // 渲染訂單order list
@@ -136,6 +123,21 @@ function renderOrderList(data){
     }) 
    
 }
+
+js0rderList.addEventListener('click',function(e){
+    e.preventDefault();
+    const targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
+    const itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
+    const paidStatus = e.target.getAttribute('data-status');
+    if(targetClass =="orderStatus"){
+        console.log(itemId);
+        console.log(paidStatus);
+        changeStatus(paidStatus,itemId);
+        return;
+    }else if(targetClass =="delSingleOrder-Btn"){
+     deleteOrder(itemId);
+    }
+})
 
 //寫個別『刪除訂單資料』的函式axios delete
 
