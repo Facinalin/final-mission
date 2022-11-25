@@ -70,25 +70,8 @@ function renderc3() {
       }
     }
   });
-}
+} // 渲染訂單order list
 
-js0rderList.addEventListener('click', function (e) {
-  e.preventDefault();
-  var targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
-
-  var itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
-
-  var paidStatus = e.target.getAttribute('data-status');
-
-  if (targetClass == "orderStatus") {
-    console.log(itemId);
-    console.log(paidStatus);
-    changeStatus(paidStatus, itemId);
-    return;
-  } else if (targetClass == "delSingleOrder-Btn") {
-    deleteOrder(itemId);
-  }
-}); // 渲染訂單order list
 
 function renderOrderList(data) {
   var str = "";
@@ -116,8 +99,25 @@ function renderOrderList(data) {
     str += "<tr>\n        <td width=\"10%\">".concat(id, "</td>\n        <td width=\"10%\">\n          <p>").concat(user.name, "</p>\n          <p>").concat(user.tel, "</p>\n        </td>\n        <td width=\"10%\">").concat(user.address, "</td>\n        <td width=\"15%\">").concat(user.email, "</td>\n        <td width=\"25%\">\n        ").concat(productStr, "\n        </td>\n        <td width=\"10%\">").concat(time, "</td>\n        <td width=\"10%\" class=\"orderStatus\">\n          <a href=\"#\" data-id=\"").concat(id, "\" data-status=\"").concat(paid, "\" class=\"orderStatus\">").concat(orderStatus, "</a>\n        </td>\n        <td width=\"10%\">\n          <input type=\"button\" class=\"delSingleOrder-Btn\" data-id=\"").concat(id, "\" value=\"\u522A\u9664\">\n        </td>\n    </tr>");
     js0rderList.innerHTML = str; //放在forEach裡才渲染得出來
   });
-} //寫個別『刪除訂單資料』的函式axios delete
+}
 
+js0rderList.addEventListener('click', function (e) {
+  e.preventDefault();
+  var targetClass = e.target.getAttribute('class'); //抓到未付款＆刪除的class
+
+  var itemId = e.target.getAttribute('data-id'); //兩個id一樣，class不同去二分情況
+
+  var paidStatus = e.target.getAttribute('data-status');
+
+  if (targetClass == "orderStatus") {
+    console.log(itemId);
+    console.log(paidStatus);
+    changeStatus(paidStatus, itemId);
+    return;
+  } else if (targetClass == "delSingleOrder-Btn") {
+    deleteOrder(itemId);
+  }
+}); //寫個別『刪除訂單資料』的函式axios delete
 
 function deleteOrder(id) {
   axios["delete"]("".concat(api_Src, "/admin/").concat(api_Path, "/orders/").concat(id), {
@@ -248,12 +248,16 @@ var orderInfoBtn = document.querySelector('.orderInfo-btn');
 var token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1"; //axios.get資料
 
 var wData = [];
+axiosGet();
+getCart();
+productSelect.value = "全部";
 init(); //get一般product
 
 function axiosGet() {
   axios.get("".concat(api_Url, "/products")).then(function (response) {
     wData = response.data.products;
     console.log(wData);
+    console.log("成功");
     renderData(wData, productWrap);
   })["catch"](function (err) {
     console.log(err);
