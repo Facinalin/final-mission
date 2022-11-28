@@ -41,7 +41,9 @@ let envOptions = {
   },
   javascript: {
     src: [
-      `${srcPath}/assets/js/**/*.js`
+      `${srcPath}/assets/js/**/*.js`,
+      `!${srcPath}/assets/js/index.js`,
+      `!${srcPath}/assets/js/admin.js`,
     ],
     concat: 'all.js',
     path: `${distPath}/assets/js`,
@@ -67,6 +69,13 @@ let envOptions = {
     port: 8080,
   },
   deploySrc: `${distPath}/**/*`,
+  copyJSFile: {
+    src: [
+      `${srcPath}/assets/js/admin.js`,
+      `${srcPath}/assets/js/index.js`,
+    ],
+    path: `${distPath}/assets/js`,
+  },
 };
 
 exports.envOptions = envOptions;

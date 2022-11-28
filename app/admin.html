@@ -2,7 +2,7 @@
 title: Boostrap Index
 layout: ./app/layout.ejs
 engine: ejs
-current: index
+current: admin
 ---
 <link rel="stylesheet" href="./assets/style/admin.css">
 <section class="wrap">
@@ -70,5 +70,4 @@ current: index
         </table>
     </div>
 </section>
-
-<script src="./assets/js/admin.js"></script>
+<script src="./assets/js/<%-current%>.js"></script>
