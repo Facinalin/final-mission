@@ -5,6 +5,27 @@ const js0rderList = document.querySelector('.js-orderList');
 
 let orderData = [];
 
+console.log('你還好嗎');
+
+const deleteAllAdmin = document.querySelector('#deleteAllAdmin');
+
+deleteAllAdmin.addEventListener('click', (e) => {
+  e.preventDefault();
+  axios.delete(`${api_Src}/admin/${api_Path}/orders`,{
+    headers:{
+       "Authorization": token
+    }
+})
+  .then(function(response){
+      alert('訂單列表成功清空！')   
+      getOrderList();  
+      console.log('成功渲染清空後的列表');
+  })
+  .catch(function(err){
+      alert('已清空，勿重複點擊');
+  })  
+})
+
 
 getOrderList();
 
@@ -19,6 +40,7 @@ function getOrderList(){
     orderData = response.data.orders;
     renderOrderList(orderData);
     renderc3();
+    console.log('渲染訂單成功');
   })
   .catch(function(err){
     console.log(err);
@@ -76,10 +98,6 @@ function renderc3(){
         },
     });
 }
-
- 
-
-
 
 // 渲染訂單order list
 function renderOrderList(data){
@@ -183,14 +201,9 @@ function changeStatus(status,id){
       })
 }
 
-//utility js
-//千分位
- 
-function toThousands(x) {
-     let parts = x.toString().split("."); 
-     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); 
-     return parts.join("."); 
-}
+//刪除全部-補寫
+
+
 
 
 
