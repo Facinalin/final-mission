@@ -147,7 +147,7 @@ function productHTML(item){
 let cData = [];
 
 function getCart(){
-    axios.get(`${api_Src}/customer/${api_Path}/cartss`)
+    axios.get(`${api_Src}/customer/${api_Path}/carts`)
   .then(function(response){
     cData = response.data.carts;
     console.log(cData);
