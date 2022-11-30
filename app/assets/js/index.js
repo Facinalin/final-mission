@@ -1,3 +1,44 @@
+document.addEventListener('DOMContentLoaded', function() {
+    const ele = document.querySelector('.recommendation-wall');
+    ele.style.cursor = 'grab';
+    let pos = { top: 0, left: 0, x: 0, y: 0 };
+    const mouseDownHandler = function(e) {
+        ele.style.cursor = 'grabbing';
+        ele.style.userSelect = 'none';
+
+        pos = {
+            left: ele.scrollLeft,
+            top: ele.scrollTop,
+            // Get the current mouse position
+            x: e.clientX,
+            y: e.clientY,
+        };
+
+        document.addEventListener('mousemove', mouseMoveHandler);
+        document.addEventListener('mouseup', mouseUpHandler);
+    };
+    const mouseMoveHandler = function(e) {
+        // How far the mouse has been moved
+        const dx = e.clientX - pos.x;
+        const dy = e.clientY - pos.y;
+
+        // Scroll the element
+        ele.scrollTop = pos.top - dy;
+        ele.scrollLeft = pos.left - dx;
+    };
+    const mouseUpHandler = function() {
+        ele.style.cursor = 'grab';
+        ele.style.removeProperty('user-select');
+
+        document.removeEventListener('mousemove', mouseMoveHandler);
+        document.removeEventListener('mouseup', mouseUpHandler);
+    };
+    // Attach the handler
+    ele.addEventListener('mousedown', mouseDownHandler);
+});
+
+
+
 
 const productWrap = document.querySelector('.productWrap');
 const productSelect = document.querySelector('.productSelect');
@@ -16,9 +57,16 @@ const token = "BvRBbqadN2RAHi0hwsvYiN0VQAy1";
 
 let wData = [];
 
-axiosGet();
+
+//初始化
+function init(){
+    axiosGet();
     getCart();
     productSelect.value = "全部";
+}
+
+getCart();
+
 init();
 
 //get一般product
@@ -27,8 +75,8 @@ function axiosGet(){
   .then(function(response){
     wData = response.data.products;
     console.log(wData);
-    console.log("成功");
     renderData(wData,productWrap);  
+    console.log("成功");
 })
   .catch(function(err){
     console.log(err);
@@ -59,12 +107,6 @@ productSelect.addEventListener('change', e =>{
     categorySelect === "全部"?renderData(wData):renderData(filterData);
 })
 
-//初始化
-function init(){
-    axiosGet();
-    getCart();
-    productSelect.value = "全部";
-}
 
 let subtotal = 0;
 //函式消除重複
@@ -105,15 +147,18 @@ function productHTML(item){
 let cData = [];
 
 function getCart(){
-    axios.get(`${api_Src}/customer/${api_Path}/carts`)
+    axios.get(`${api_Src}/customer/${api_Path}/cartss`)
   .then(function(response){
     cData = response.data.carts;
+    console.log(cData);
     let finalTot = response.data.finalTotal;
     rendercData(cData,perItemCart)
     jsTotal.textContent = toThousands(finalTot);
+    console.log('取到資料且成功渲染');
   })
   .catch(function(err){
     console.log(err);
+    console.log('網址打錯');
   })
 }
 
@@ -127,7 +172,6 @@ function rendercData(data,domElement){
  }
 })   
     domElement.innerHTML = str;
-
     console.log('渲染購物車成功');
 }
 
@@ -234,22 +278,6 @@ orderInfoBtn.addEventListener('click', (e) =>{
     })
 }) 
 
-//get購物車carts
-
-
-function getOrder(){
-    axios.get(`${api_Urlm}/orders`,{
-        headers:{
-           "Authorization": token
-        }
-    })
-  .then(function(response){
-    console.log(response.data);
-  })
-  .catch(function(err){
-    console.log(err);
-  })
-}
 //validate js
 
 const inputs = document.querySelectorAll('input[name],select[data=payment]')
