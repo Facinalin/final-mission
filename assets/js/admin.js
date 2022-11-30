@@ -9,6 +9,7 @@ console.log('你還好嗎');
 
 const deleteAllAdmin = document.querySelector('#deleteAllAdmin');
 
+//刪除全部案紐
 deleteAllAdmin.addEventListener('click', (e) => {
   e.preventDefault();
   axios.delete(`${api_Src}/admin/${api_Path}/orders`,{
@@ -18,8 +19,6 @@ deleteAllAdmin.addEventListener('click', (e) => {
 })
   .then(function(response){
       alert('訂單列表成功清空！')   
-      getOrderList();  
-      console.log('成功渲染清空後的列表');
   })
   .catch(function(err){
       alert('已清空，勿重複點擊');
