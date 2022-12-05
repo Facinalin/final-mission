@@ -268,7 +268,6 @@ orderInfoBtn.addEventListener('click', (e) =>{
       }).then(function(response){
         alert('送出訂單成功！')
         console.log(response.data);
-        getOrder();
         getCart();
         customerName = "";
         customerPhone = "";
@@ -285,6 +284,7 @@ const orderInfoForm = document.querySelector('.orderInfo-form')
 
 orderInfoBtn.addEventListener('click', e =>{
     //validate js 套件的規則
+    console.log('你點到了');
     const constraints = {
         "姓名": {
             presence: {
@@ -324,7 +324,8 @@ orderInfoBtn.addEventListener('click', e =>{
             el.nextElementSibling.textContent = ''; //這邊的nextElementSibling是警示文字的元素
             let errors = validate(orderInfoForm, constraints) || '';
             console.log(errors);
-            console.log("here");
+            console.log(Object.keys(errors));
+            console.log("here"); 
             Object.keys(errors).forEach(function(el){
                 document.querySelector(`[data-message="${el}"]`).textContent = errors[el];
                 })
@@ -332,13 +333,11 @@ orderInfoBtn.addEventListener('click', e =>{
     })
     let errors = validate(orderInfoForm, constraints);
     if(errors){
-        console.log(errors);
-
+        console.log(errors,Object.keys(errors));
     }else{
         alert("表單成功送出！");
         form.reset();
     }
-
 })
 
 
