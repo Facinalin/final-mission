@@ -75,7 +75,8 @@ function axiosGet(){
   .then(function(response){
     wData = response.data.products;
     console.log(wData);
-    renderData(wData,productWrap);  
+    renderData(wData,productWrap); 
+    selectCategory(); 
     console.log("成功");
 })
   .catch(function(err){
@@ -99,13 +100,21 @@ function renderData(data,domElement){
 
 //篩選一般product
 
-productSelect.addEventListener('change', e =>{
-    let categorySelect = e.target.value;
+
+function selectCategory(){
+   if(productSelect){
+    let categorySelect ='';
+    productSelect.addEventListener('change', e =>{
+    categorySelect = e.target.value;
+    console.log(categorySelect);
     const filterData = wData.filter(el =>{
-        return el.category === categorySelect;
+    return el.category === categorySelect;
     })
-    categorySelect === "全部"?renderData(wData):renderData(filterData);
+    console.log(filterData);
+    categorySelect === "全部" ? renderData(wData,productWrap) : renderData(filterData,productWrap);
 })
+}
+}
 
 
 let subtotal = 0;
@@ -277,11 +286,15 @@ orderInfoBtn.addEventListener('click', (e) =>{
     })
 }) 
 
+//篩選功能
+
+const productDisplay = document.querySelector('productDisplay');
+
 //validate js
 
-const inputs = document.querySelectorAll('input[name],select[data=payment]')
+const inputs = document.querySelectorAll('input[name]')
 const orderInfoForm = document.querySelector('.orderInfo-form')
-
+console.log(inputs);
 orderInfoBtn.addEventListener('click', e =>{
     //validate js 套件的規則
     console.log('你點到了');
@@ -291,7 +304,7 @@ orderInfoBtn.addEventListener('click', e =>{
                 message: "必填欄位"
             }
         },
-        "手機號碼": {
+        "電話": {
             presence: {
                 message: "是必填的欄位"
             },
